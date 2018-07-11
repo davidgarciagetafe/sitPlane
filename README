@@ -1,0 +1,12 @@
+1º vamos crear la entrada del fichero para poder procesar los datos.
+2º tenemos que validar las pruebas, el fichero existe?, tiene datos?, tienen el formato correcto?
+3º vamos a suponer que todas las filas del fichero tienen el formato correcto, en cuanto a caracteres,
+4º damos el tamaño oportuno al avion.
+5º procesamos los pasajeros, sentando en primer lugar a los grupos, colocando el primero a los que requieren ventanilla, y separando a los pasajeros que viajan solos en dos grupos los que quieren ventanilla y otros.
+6º en caso de grupos de pasajeros mas grandes de una fila, se completara una fila y se les colocara a los restantes detras.
+7º procesamos los pasajeros que quieren ventanilla y los colocamos en las posiciones vacias.
+8º procesamos el resto de pasajeros para completar la salida.
+9º se podria evaluar el hecho de grupos de pasajeros en el cual poder dejar vacias ambas ventanillas para su posterior uso por pasajeros individuales
+10ª puede haber grupos donde todos quieran ventanilla? se deberia crear una funcionalidad y ver que hacer con estos grupos.
+
+ 
