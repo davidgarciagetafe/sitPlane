@@ -1,15 +1,18 @@
 package sitPlane;
 
 public class Plane {
-int [][] mapPlane;
-int rows;
-int seatsPerRow;
+	Row [] rows;
+//numberSeat [] rows;
+//int [] numberSeat;
+
 public Plane(int rows, int seatsPerRow) {
 	super();
-	this.rows = rows;
-	this.seatsPerRow = seatsPerRow;
-	this.mapPlane = new int[rows][seatsPerRow];
+//	this.rows = new numberSeat [rows];
+//	this.numberSeat = new int [seatsPerRow];
+
 }
+
+
 
 
 }
