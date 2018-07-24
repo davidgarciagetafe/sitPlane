@@ -1,14 +1,9 @@
 package sitPlane;
 
-import java.awt.Window;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 
 public class App {
 
@@ -25,7 +20,7 @@ public class App {
 		// String fileName = args[0];
 
 		try {
-			File file = existFile("src\\main\\resources\\demo");
+			File file = existFile(args[0]);
 
 			readFile(file);
 
@@ -38,6 +33,7 @@ public class App {
 
 	public static File existFile(String fileName) throws Exception {
 		File file = new File(fileName);
+		System.out.println("Path->" + file.getAbsolutePath());
 		if (file == null || file.length() == 0)
 			throw new Exception("File name " + fileName + " is not valid");
 		if (!file.isFile())
@@ -126,6 +122,7 @@ public class App {
 	private static void putPassengersInPlane() {
 		// TODO Auto-generated method stub
 		// primero procesamos los grupos.
+
 		putGroupsInPlane();
 		/// vamos a mover los pasajeros que quieren ventanilla
 		relocateRows();
@@ -133,43 +130,84 @@ public class App {
 		System.out.println("relocate");
 		///// vamos a poner los solitarios
 		int numberOfAlone = 0;
-		while (alones.size() > 0) {
-			String passengerForPosition = alones.remove(0);
-			for (int x = 0; x < plane.length && passengerForPosition != null; x++) {
-				String[] row = plane[x];
+		clasifiedAlones();
 
-				for (int y = 0; y < row.length && passengerForPosition != null; y++) {
-
-					if (row[y] == null) {
-						if (passengerForPosition.endsWith(windowValue)) {
-							if (!row[0].endsWith(windowValue)) {
-								String passengerMove = row[0];
-								row[0] = passengerForPosition;
-								row[y] = passengerMove;
-								passengerForPosition = null;
-
-							}
-						} else {
-							row[y] = passengerForPosition;
-							passengerForPosition = null;
-						}
-
-						numberOfAlone++;
-					}
-				}
-			}
-		}
+		// while (alones.size() > 0) {
+		// String passengerForPosition = alones.remove(0);
+		// for (int x = 0; x < plane.length && passengerForPosition != null; x++) {
+		// String[] row = plane[x];
+		//
+		// for (int y = 0; y < row.length && passengerForPosition != null; y++) {
+		//
+		// if (row[y] == null) {
+		// if (passengerForPosition.endsWith(windowValue)) {
+		// if (!row[0].endsWith(windowValue)) {
+		// String passengerMove = row[0];
+		// row[0] = passengerForPosition;
+		// row[y] = passengerMove;
+		// passengerForPosition = null;
+		//
+		// }
+		// } else {
+		// row[y] = passengerForPosition;
+		// passengerForPosition = null;
+		// }
+		//
+		// numberOfAlone++;
+		// }
+		// }
+		// }
+		// }
 
 		/// vamos a mover los pasajeros que quieren ventanilla
-		relocateRows();
+		clearSeat();
 		//////
 
 		verFilas();
 	}
 
+	private static void clearSeat() {
+		for (int x = 0; x < plane.length; x++) {
+			String[] row = plane[x];
+			for (int y = 0; y < row.length; y++) {
+				if (row[y] != null && row[y].endsWith(windowValue)) {
+					row[y] = extractPassergerForWindow(row[y]);
+				}
+			}
+		}
+	}
+
+	private static void clasifiedAlones() {
+		ArrayList<String> aloneWithWindow = new ArrayList<String>();
+		ArrayList<String> aloneNotWindow = new ArrayList<String>();
+		while (alones.size() > 0) {
+			String passengerForPosition = alones.remove(0);
+			if (passengerForPosition.endsWith(windowValue)) {
+				aloneWithWindow.add(extractPassergerForWindow(passengerForPosition));
+			} else {
+				aloneNotWindow.add(passengerForPosition);
+			}
+		}
+		for (String[] row : plane) {
+
+			if (row[0] == null && aloneWithWindow.size() > 0) {
+				row[0] = aloneWithWindow.remove(0);
+			} else if (row[row.length - 1] == null && aloneWithWindow.size() > 0) {
+				row[row.length - 1] = aloneWithWindow.remove(0);
+			}
+			for (int y = 1; y < row.length - 1; y++) {
+
+				if (row[y] == null && aloneNotWindow.size() > 0) {
+					row[y] = aloneNotWindow.remove(0);
+				}
+
+			}
+		}
+	}
+
 	private static void putGroupsInPlane() {
 		int groupForPosition = 0;
-		for (int x = 0; x < plane.length; x++) {
+		for (int x = 0; x < plane.length && groupForPosition <= groups.size() - 1; x++) {
 			String[] row = plane[x];
 			String[] grupo = groups.get(groupForPosition);
 			int occupiedseats = 0;
@@ -178,9 +216,9 @@ public class App {
 			for (int passenger = 0; passenger < grupo.length; passenger++) {
 				asiento = passenger + occupiedseats;
 				row[asiento] = grupo[passenger];
-				if (((groupForPosition + 1) < groups.size())
-						&& (grupo.length + groups.get(groupForPosition + 1).length) <= row.length
-						&& passenger + 1 == grupo.length) {
+				if (passenger == grupo.length - 1 && asiento + 1 < row.length
+						&& ((groupForPosition + 1) < groups.size())
+						&& (row.length - asiento) > groups.get(groupForPosition + 1).length) {
 
 					occupiedseats = grupo.length;
 					groupForPosition++;
@@ -203,21 +241,21 @@ public class App {
 					row[x] = null;
 					while (pasajeroForRelocate != null) {
 						if (row[0] == null) {
-							row[0] = pasajeroForRelocate;
+							row[0] = (pasajeroForRelocate);
 							System.out.println("primera ventanilla vacia colocado pasajero");
 							pasajeroForRelocate = null;
 						} else if (!row[0].endsWith(windowValue)) {
 							row[x] = row[0];
-							row[0] = pasajeroForRelocate;
+							row[0] = (pasajeroForRelocate);
 							System.out.println("ultima ventanilla vacia colocado pasajero");
 							pasajeroForRelocate = null;
 						} else {
 							if (row[row.length - 1] == null) {
-								row[row.length - 1] = pasajeroForRelocate;
+								row[row.length - 1] = (pasajeroForRelocate);
 								pasajeroForRelocate = null;
 							} else if (row[row.length - 1] != null && !row[row.length - 1].endsWith(windowValue)) {
 								pasajeroActual = row[row.length - 1];
-								row[row.length - 1] = pasajeroForRelocate;
+								row[row.length - 1] = (pasajeroForRelocate);
 								row[x] = pasajeroActual;
 								pasajeroForRelocate = null;
 							}
@@ -233,12 +271,12 @@ public class App {
 	private static void verFilas() {
 		int x = 1;
 		for (String[] row : plane) {
-			System.out.println("fila " + x);
+			System.out.print("fila " + x + "\t");
 			for (String seatNumber : row) {
-				System.out.print(seatNumber + "-");
+				System.out.print("asiento:"+seatNumber.toString() + "-");
 			}
-			System.out.println(" libre-" + row.length);
 			x++;
+			System.out.println();
 		}
 		System.out.println();
 	}
